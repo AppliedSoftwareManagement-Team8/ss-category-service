@@ -1,0 +1,1 @@
+# Student Shopper Category Service
