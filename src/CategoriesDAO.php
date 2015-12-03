@@ -56,7 +56,6 @@ class CategoriesDAO
         $criteria = array('_id' => new MongoId($id));
         unset($newDoc['_id']);
         $result = self::$collection->update($criteria, array('$set' => json_decode($newDoc)));
-
         self::closeConnection();
         return $result;
     }
@@ -65,8 +64,7 @@ class CategoriesDAO
     {
         $result = self::$collection->insert(json_decode($doc));
         self::closeConnection();
-        $result['_id'] = $result['_id']->{'$id'};
-        return $result;
+        return array('success' => 'created');;
     }
 
     public function delete($id)
