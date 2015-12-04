@@ -1,7 +1,7 @@
 <?php
-require '../vendor/autoload.php';
-require '../src/CategoriesDAO.php';
-require '../src/JsonResponse.php';
+require_once '../vendor/autoload.php';
+require_once '../src/CategoriesDAO.php';
+require_once '../src/JsonResponse.php';
 
 use \Slim\Middleware;
 
@@ -24,9 +24,8 @@ $app->container->singleton('log', function () {
 
 function getCategoryById ($id) {
     $app = \Slim\Slim::getInstance();
-    $categories = new CategoriesDAO();
     try {
-        $app->response->setBody(json_encode($categories->connect()->getOne($id)));
+        $app->response->setBody(json_encode(CategoriesDAO::getOne($id)));
         return $app->response->getBody();
     } catch (Exception $e) {
         $app->response->setStatus(404);
@@ -37,9 +36,8 @@ function getCategoryById ($id) {
 
 function getAllCategories () {
     $app = \Slim\Slim::getInstance();
-    $categories = new CategoriesDAO();
     try {
-        $app->response->setBody(json_encode($categories->connect()->getAll()));
+        $app->response->setBody(json_encode(CategoriesDAO::getAll()));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
@@ -50,9 +48,8 @@ function getAllCategories () {
 
 function createCategory () {
     $app = \Slim\Slim::getInstance();
-    $categories = new CategoriesDAO();
     try {
-        $app->response->setBody(json_encode($categories->connect()->create($app->request->getBody())));
+        $app->response->setBody(json_encode(CategoriesDAO::create($app->request->getBody())));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
@@ -63,15 +60,8 @@ function createCategory () {
 
 function updateCategoryById ($id) {
     $app = \Slim\Slim::getInstance();
-    $categories = new CategoriesDAO();
-	$data = json_decode($app->request->getBody());
-	if (!array_key_exists( 'name', $data ) || !array_key_exists ( 'description', $data )) {
-		if(!isset($data['name']) || !isset($data['description'])) {
-			$app->halt(422, json_encode(array('status' => 422, 'error' => 'missing or undefined parameters')));
-		}
-	}
     try {
-        $app->response->write(json_encode($categories->connect()->update($id, $app->request->getBody())));
+        $app->response->write(json_encode(CategoriesDAO::update($id, $app->request->getBody())));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
@@ -82,9 +72,8 @@ function updateCategoryById ($id) {
 
 function deleteCategoryById ($id) {
     $app = \Slim\Slim::getInstance();
-    $categories = new CategoriesDAO();
     try {
-        $app->response->write(json_encode($categories->connect()->delete($id)));
+        $app->response->write(json_encode(CategoriesDAO::delete($id)));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);

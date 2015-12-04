@@ -7,32 +7,32 @@
  */
 class CategoriesDAO
 {
-    protected static $collection;
-    protected static $connection;
+
     const MONGO_HOST = "mongodb://localhost:27017";
+	const DATABASE_NAME = "ss-category";
+    const COLLECTION_NAME = "categories";
+	
+    private static $collection;
+    private static $connection;
 
     public function __construct()
     {
     }
 
-    public function connect()
+    private function connect()
     {
         if (!isset(self::$collection)) {
-            self::$connection = new MongoClient();
-            $db = self::$connection->selectDb("ss-category");
-            self::$collection = $db->selectCollection("categories");
+            self::$connection = new MongoClient(self::MONGO_HOST);
+            $db = self::$connection->selectDb(self::DATABASE_NAME);
+            self::$collection = $db->selectCollection(self::COLLECTION_NAME);
             self::$collection->createIndex(array('name' => 1), array('unique' => 1, 'dropDups' => 1));
         }
-
-        if (self::$collection === false) {
-
-            return false;
-        }
-        return $this;
+        return true;
     }
 
-    public function getAll()
+    public static function getAll()
     {
+		self::connect();
         $categories = self::$collection->find();
         $result = array();
         foreach ($categories as $category) {
@@ -42,17 +42,18 @@ class CategoriesDAO
         return $result;
     }
 
-    public function getOne($id)
+    public static function getOne($id)
     {
+		self::connect();
         $criteria = array('_id' => new MongoId($id));
         $result = self::$collection->findOne($criteria);
         self::closeConnection();
-        $result['_id'] = $result['_id']->{'$id'};
         return $result;
     }
 
-    public function update($id, $newDoc)
+    public static function update($id, $newDoc)
     {
+		self::connect();
         $criteria = array('_id' => new MongoId($id));
         unset($newDoc['_id']);
         $result = self::$collection->update($criteria, array('$set' => json_decode($newDoc)));
@@ -60,15 +61,17 @@ class CategoriesDAO
         return $result;
     }
 
-    public function create($doc)
+    public static function create($doc)
     {
+		self::connect();
         $result = self::$collection->insert(json_decode($doc));
         self::closeConnection();
         return array('success' => 'created');;
     }
 
-    public function delete($id)
+    public static function delete($id)
     {
+		self::connect();
         $criteria = array('_id' => new MongoId($id));
         self::$collection->remove(
             $criteria,
@@ -82,6 +85,8 @@ class CategoriesDAO
 
     private function closeConnection()
     {
-        self::$connection->close();
+        if (self::$connection != null) {
+            self::$connection->close();
+        }
     }
 }
