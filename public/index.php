@@ -29,7 +29,7 @@ function getCategoryById ($id) {
         return $app->response->getBody();
     } catch (Exception $e) {
         $app->response->setStatus(404);
-        $app->response->setBody('{"error":{"message":' . $e->getMessage() . '}}');
+        $app->response->setBody(getErrorMessage($e));
         return json_encode($app->response->getBody());
     }
 }
@@ -37,11 +37,11 @@ function getCategoryById ($id) {
 function getAllCategories () {
     $app = \Slim\Slim::getInstance();
     try {
-        $app->response->setBody(json_encode(CategoriesDAO::getAll()));
+        $app->response->setBody(json_encode(CategoriesDAO::getAll(), JSON_FORCE_OBJECT));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
-        $app->response->setBody('{"error":{"message":' . $e->getMessage() . '}}');
+        $app->response->setBody(getErrorMessage($e));
         return json_encode($app->response->getBody());
     }
 }
@@ -50,10 +50,11 @@ function createCategory () {
     $app = \Slim\Slim::getInstance();
     try {
         $app->response->setBody(json_encode(CategoriesDAO::create($app->request->getBody())));
+        $app->response->setStatus(201);
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
-        $app->response->setBody('{"error":{"message":' . $e->getMessage() . '}}');
+        $app->response->setBody(getErrorMessage($e));
         return json_encode($app->response->getBody());
     }
 }
@@ -65,7 +66,7 @@ function updateCategoryById ($id) {
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
-        $app->response->setBody('{"error":{"message":' . $e->getMessage() . '}}');
+        $app->response->setBody(getErrorMessage($e));
         return json_encode($app->response->getBody());
     }
 }
@@ -77,9 +78,14 @@ function deleteCategoryById ($id) {
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
-        $app->response->setBody('{"error":{"message":' . $e->getMessage() . '}}');
+        $app->response->setBody(getErrorMessage($e));
         return json_encode($app->response->getBody());
     }
+}
+
+
+function getErrorMessage($exception) {
+    return array('error'=> array('message'=> $exception.getMessage()));
 }
 
 function reqDataCheck() {
@@ -87,16 +93,15 @@ function reqDataCheck() {
 	$data = json_decode($app->request->getBody(), true);
 	if (array_key_exists( 'name', $data ) && array_key_exists ( 'description', $data )) {
 		if(isset($data['name']) && isset($data['description'])) {
-			if(empty($data['name']) || empty($data['description'])) {
-				$app->halt(422, json_encode(array('status' => 422, 'error' => 'missing or undefined parameters')));
-			}
-		} else {
-			$app->halt(422, json_encode(array('status' => 422, 'error' => 'missing or undefined parameters')));
-		}
-	} else {
-		$app->halt(422, json_encode(array('status' => 422, 'error' => 'missing or undefined parameters')));
-	}
-}
+      if(empty($data['name']) || empty($data['description'])) {
+          $app->halt(422, json_encode(array('status' => 422, 'error' => 'Empty value parameters')));
+      }
+    } else {
+        $app->halt(422, json_encode(array('status' => 422, 'error' => 'Undefined parameters')));
+    }
+  } else {
+      $app->halt(422, json_encode(array('status' => 422, 'error' => 'Missing parameters')));
+  }
 
 // Define routes
 $app->group('/api', function () use ($app) {

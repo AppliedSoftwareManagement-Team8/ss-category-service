@@ -11,7 +11,7 @@ class CategoriesDAO
     const MONGO_HOST = "mongodb://localhost:27017";
 	const DATABASE_NAME = "ss-category";
     const COLLECTION_NAME = "categories";
-	
+
     private static $collection;
     private static $connection;
 
@@ -36,7 +36,7 @@ class CategoriesDAO
         $categories = self::$collection->find();
         $result = array();
         foreach ($categories as $category) {
-            $result[] = $category;
+            $result['categories'][] = $category;
         }
         self::closeConnection();
         return $result;
