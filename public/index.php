@@ -93,16 +93,16 @@ function reqDataCheck() {
 	$data = json_decode($app->request->getBody(), true);
 	if (array_key_exists( 'name', $data ) && array_key_exists ( 'description', $data )) {
 		if(isset($data['name']) && isset($data['description'])) {
-      if(empty($data['name']) || empty($data['description'])) {
-          $app->halt(422, json_encode(array('status' => 422, 'error' => 'Empty value parameters')));
-      }
+			if(empty($data['name']) || empty($data['description'])) {
+				$app->halt(422, json_encode(array('status' => 422, 'error' => 'Empty value parameters')));
+			}
+		} else {
+           $app->halt(422, json_encode(array('status' => 422, 'error' => 'Undefined parameters')));
+		   }
     } else {
-        $app->halt(422, json_encode(array('status' => 422, 'error' => 'Undefined parameters')));
-    }
-  } else {
       $app->halt(422, json_encode(array('status' => 422, 'error' => 'Missing parameters')));
-  }
-
+	}
+}
 // Define routes
 $app->group('/api', function () use ($app) {
     $app->group('/categories', function () use ($app) {
