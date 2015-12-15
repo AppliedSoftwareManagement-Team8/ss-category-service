@@ -7,6 +7,11 @@ use \Slim\Middleware;
 
 // Prepare app
 $app = new \Slim\Slim();
+$corsOptions = array(
+    "origin" => "*",
+    "maxAge" => 1728000
+);
+$app->add(new \CorsSlim\CorsSlim($corsOptions));
 $app->add(new JsonResponse());
 $app->notFound(
     function () use ($app) {
@@ -37,7 +42,7 @@ function getCategoryById ($id) {
 function getAllCategories () {
     $app = \Slim\Slim::getInstance();
     try {
-        $app->response->setBody(json_encode(CategoriesDAO::getAll(), JSON_FORCE_OBJECT));
+        $app->response->setBody(json_encode(CategoriesDAO::getAll()));
         return json_encode($app->response->getBody());
     } catch (Exception $e) {
         $app->response->setStatus(404);
@@ -85,7 +90,7 @@ function deleteCategoryById ($id) {
 
 
 function getErrorMessage($exception) {
-    return array('error'=> array('message'=> $exception.getMessage()));
+    return json_encode(array('error'=> array('message'=> $exception->getMessage())));
 }
 
 function reqDataCheck() {
