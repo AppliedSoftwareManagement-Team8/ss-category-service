@@ -110,9 +110,7 @@ function reqDataCheck() {
 }
 // Define routes
 $app->group('/api', function () use ($app) {
-    $app->group('/categories', function () use ($app) {
-
-        // Get a Category
+    // Get a Category
         $app->get('/:id', 'getCategoryById' );
 
         // Get all Categories
@@ -126,7 +124,6 @@ $app->group('/api', function () use ($app) {
 
         // Delete a Category by ID
         $app->delete('/:id', 'deleteCategoryById');
-    });
 });
 
 // Run app
